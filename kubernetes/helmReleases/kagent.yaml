@@ -23,7 +23,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: kagent-crd
-  namespace: kagent
+  namespace: flux-system
 spec:
   targetNamespace: kagent
   interval: 5m
@@ -43,7 +43,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: kagent
-  namespace: kagent
+  namespace: flux-system
 spec:
   targetNamespace: kagent
   interval: 5m
