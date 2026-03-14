@@ -17,7 +17,7 @@ metadata:
 spec:
   targetNamespace: kagent
   interval: 5m
-  releaseName: kagent-crd
+  releaseName: kagent-crds
   install:
     createNamespace: true
   chart:
