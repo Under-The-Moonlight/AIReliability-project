@@ -76,10 +76,7 @@ spec:
       default: openAI
       providers:
         openAI:
-          apiKey:
-            secretKeyRef:
-              name: openai-api-key
-              key: apiKey
+          apiKeySecretRef: openai-api-key
 ---
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
