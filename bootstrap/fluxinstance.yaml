@@ -42,4 +42,4 @@ spec:
     kind: GitRepository
     url: "https://github.com/Under-The-Moonlight/AIReliability-project.git"
     ref: "refs/heads/main"
-    path: "kubernetes/charts"
+    path: "kubernetes/helmReleases"
