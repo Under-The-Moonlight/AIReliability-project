@@ -2,16 +2,27 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
+  name: kagent-crd
+  namespace: flux-system
+spec:
+  type: oci
+  interval: 5m
+  url: oci://ghcr.io/kagent-dev/kagent/helm/kagent-crds
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
   name: kagent
   namespace: flux-system
 spec:
+  type: oci
   interval: 5m
   url: oci://ghcr.io/kagent-dev/kagent/helm/kagent
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: kagent
+  name: kagent-crd
   namespace: kagent
 spec:
   targetNamespace: kagent
@@ -22,14 +33,48 @@ spec:
   chart:
     spec:
       chart: kagent
-      version: "0.7.23"
+      version: "0.7"
+      sourceRef:
+        kind: HelmRepository
+        name: kagent-crd
+        namespace: flux-system
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kagent
+  namespace: kagent
+spec:
+  targetNamespace: kagent
+  interval: 5m
+  dependsOn:
+    - name: kagent-crd
+  releaseName: kagent
+  install:
+    createNamespace: true
+  chart:
+    spec:
+      chart: kagent
+      version: "0.7"
       sourceRef:
         kind: HelmRepository
         name: kagent
         namespace: flux-system
-  values:
-    providers:
-      default: openAI
-      providers:
-        openAI:
-          apiKey: 
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: openAI-token
+  namespace: kagent
+spec:
+  encryptedData:
+    .dockerconfigjson: AgBy3i4OJSWK+PiTySYZZA9rO43cGDEq.....
+  template:
+    type: kubernetes.io/dockerconfigjson
+    immutable: true
+    # this is an example of labels and annotations that will be added to the output secret
+    metadata:
+      labels:
+        "jenkins.io/credentials-type": usernamePassword
+      annotations:
+        "jenkins.io/credentials-description": credentials from Kubernetes
