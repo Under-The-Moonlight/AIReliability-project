@@ -69,21 +69,4 @@ spec:
         kind: HelmRepository
         name: kagent
         namespace: flux-system
----
-apiVersion: bitnami.com/v1alpha1
-kind: SealedSecret
-metadata:
-  name: openAI-token
-  namespace: kagent
-spec:
-  encryptedData:
-    .dockerconfigjson: AgBy3i4OJSWK+PiTySYZZA9rO43cGDEq.....
-  template:
-    type: kubernetes.io/dockerconfigjson
-    immutable: true
-    # this is an example of labels and annotations that will be added to the output secret
-    metadata:
-      labels:
-        "jenkins.io/credentials-type": usernamePassword
-      annotations:
-        "jenkins.io/credentials-description": credentials from Kubernetes
+
