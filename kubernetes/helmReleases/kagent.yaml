@@ -69,3 +69,16 @@ spec:
             secretKeyRef:
               name: openai-api-key
               key: apiKey
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: mysecret
+  namespace: default
+spec:
+  encryptedData:
+    foo: AgAdL9m5Y2LIrJ/JP5huQ1T8TZ+fjHaidz5JHcO4iQUuSeVs6IhFCF06EFkKqn6MYi+DQ+SsAOxdYvl1bDT+E9987irifp8NYA1ACf8ITlLRyWvYQIhEWZpTbHMQCCHbqfaXMlEfw2XdNW8czknWCHN0hfpU5Zm8zdA3X1M8RvOU/U44QoJLDd4Y3WRaZuU0QCCMzX6iFjQ++RJQkUYW1Xq9YUCFjzPuBCXGe+OCQmMswDlcKJS0AoOPDT0cd4NP4gSLB6G97D+VUibXxeGoLzTlLyjpD6PQ88VGqmlUuy5FdekTchl7ElLqZCWa+EaCTB8qhS2KL74JCN3DUoZoU/Jyhvz49qjnIWtQEOx8IUjDW/kmdxb2/4M5sD00aFF+47BrgIHmH8SPsX0DIVzuYLYkCI0NlyYW9tfs1yrTv0BlNsY+2tEUYjfoEcjqdEARGpM9m8VdsTcXjAekLEUbQ57xVBNS5HjOnqxr9ndAVqFKNf3U5yMrrz3asNqaqhAYJVGpZSH26w/npB2XAc/VFgTrJIX9tXo1+GHPHsUUG8lYMJXf2t7+2R+I8x0MqxaLXxoZaDLZEnpSDeNKwRk6mXEK2II1CCtaPXmhhhe26F256AkvljyuhusKT/98osro3k3vvLC1tVwO/Cm+xKILw3WhDLan0OnSsGW8yF6g3QVqmQkT1IwTzRG3XUurJai8/JNfxHGeVjcTiIBIPHUAGbuTI7Wn7wGGOILqDe+wtBnqvqtIKhDPl7Vz+N8YgpnTSfFV4EwSAg1j134ZPasQJt30uVaI0nLevR29iwdNUguX0r4zzr9Rw3OMGNRIWbrQbffVjKpm3rk9b8STI7ZuzwPO1RumHwiGSeKE9uUCMJhsIW42Q/Uy+ep6cjfhqDH4s+N6JnPr581VLHTM+fSfRKun42UoAg==
+  template:
+    metadata:
+      name: mysecret
+      namespace: default
