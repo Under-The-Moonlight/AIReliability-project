@@ -17,6 +17,8 @@ spec:
   targetNamespace: kagent
   interval: 5m
   releaseName: kagent
+  install:
+    createNamespace: true
   chart:
     spec:
       chart: kagent
