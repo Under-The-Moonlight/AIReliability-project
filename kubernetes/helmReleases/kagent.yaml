@@ -38,6 +38,15 @@ spec:
         kind: HelmRepository
         name: kagent-crd
         namespace: flux-system
+    values:
+      providers:
+        default: openAI
+        providers:
+          openAI:
+            apiKey:
+              secretKeyRef:
+                name: openai-api-key
+                key: apiKey
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
