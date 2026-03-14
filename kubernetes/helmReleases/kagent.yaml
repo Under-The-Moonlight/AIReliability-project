@@ -22,7 +22,7 @@ spec:
     createNamespace: true
   chart:
     spec:
-      chart: kagent-crd
+      chart: kagent-crds
       version: "0.7"
       sourceRef:
         kind: HelmRepository
