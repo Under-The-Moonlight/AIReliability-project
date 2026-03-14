@@ -15,7 +15,7 @@ metadata:
   name: gateway-api-crds
   namespace: flux-system
 spec:
-  interval: 10m
+  interval: 5m
   path: ./config/crd/experimental
   prune: true
   wait: true
