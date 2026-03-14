@@ -73,10 +73,8 @@ spec:
       cilium-debug-agent:
         enabled: false
     providers:
-      default: openAI
-      providers:
-        openAI:
-          apiKeySecretRef: openai-api-key
+      openAI:
+        apiKeySecretRef: openai-api-key
 ---
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
