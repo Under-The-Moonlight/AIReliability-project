@@ -8,7 +8,7 @@ spec:
     provider:
       openai:
         model: gpt-4o-mini
-    policies:
-      auth:
-        secretRef:
-          name: openai-secret
+  policies:
+    auth:
+      secretRef:
+        name: openai-secret
