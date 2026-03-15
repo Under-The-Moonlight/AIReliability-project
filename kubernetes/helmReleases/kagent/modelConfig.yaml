@@ -6,5 +6,7 @@ metadata:
 spec:
   apiKeySecretRef: openai-api-key
   apiKeySecretKey: apiKey
-  baseURL: "http://agentgateway-proxy.agentgateway-system.svc.cluster.local:80"
+  openAI:
+    baseURL: "http://agentgateway-proxy.agentgateway-system.svc.cluster.local:80"
+    maxTokens: 10000
   model: gpt-4.1-mini
