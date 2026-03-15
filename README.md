@@ -50,3 +50,11 @@ sudo install -m 755 kubeseal /usr/local/bin/kubeseal
 echo -n <API_KEY> | kubectl create secret generic mysecret --dry-run=client --from-file=apiKey=/dev/stdin -o yaml > mysecret.yaml
 kubeseal -f mysecret.yaml -w kubernetes/helmReleases/kagent/kagentSecrets.yaml --controller-name sealed-secrets-controller --controller-namespace flux-system
 ```
+
+### 6. Install cloud-provider-kind
+
+```bash
+wget https://github.com/kubernetes-sigs/cloud-provider-kind/releases/download/v0.10.0/cloud-provider-kind_0.10.0_linux_amd64.tar.gz
+sudo tar -xvzf cloud-provider-kind_0.10.0_linux_amd64.tar.gz -C /go/bin
+/go/bin/cloud-provider-kind >/dev/null 2>&1 &
+```
