@@ -43,3 +43,10 @@ curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KU
 tar -xvzf kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz kubeseal
 sudo install -m 755 kubeseal /usr/local/bin/kubeseal
 ```
+
+### 5. Create a Sealed Secret
+
+```bash
+echo -n <API_KEY> | kubectl create secret generic mysecret --dry-run=client --from-file=apiKey=/dev/stdin -o yaml > mysecret.yaml
+kubeseal -f mysecret.yaml -w kubernetes/helmReleases/kagent/kagentSecrets.yaml --controller-name sealed-secrets-controller --controller-namespace flux-system
+```

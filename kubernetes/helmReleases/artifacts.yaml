@@ -1,0 +1,27 @@
+---
+apiVersion: source.extensions.fluxcd.io/v1beta1
+kind: ArtifactGenerator
+metadata:
+  name: flux-system
+  namespace: flux-system
+spec:
+  sources:
+    - alias: monorepo
+      kind: GitRepository
+      name: flux-system
+  artifacts:
+    - name: kagent
+      originRevision: "@monorepo"
+      copy:
+        - from: "@monorepo/kubernetes/helmReleases/kagent/**"
+          to: "@artifact/kagent/"
+    - name: gateway
+      originRevision: "@monorepo"
+      copy:
+        - from: "@monorepo/kubernetes/helmReleases/gateway/**"
+          to: "@artifact/gateway"
+    - name: cluster
+      originRevision: "@monorepo"
+      copy:
+        - from: "@monorepo/kubernetes/cluster/**"
+          to: "@artifact/cluster/"
