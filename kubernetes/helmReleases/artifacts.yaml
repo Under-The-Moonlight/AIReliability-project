@@ -23,5 +23,5 @@ spec:
     - name: cluster
       originRevision: "@monorepo"
       copy:
-        - from: "@monorepo/kubernetes/cluster/**"
+        - from: "@monorepo/kubernetes/helmReleases/cluster/**"
           to: "@artifact/cluster/"
