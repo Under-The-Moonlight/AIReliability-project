@@ -1,5 +1,22 @@
 # AIReliability-project
 
+## What Was Implemented
+
+This repository deploys an AI reliability stack on Kubernetes using GitOps.
+
+Tested environment: GitHub Codespaces, `kind`, and `cloud-provider-kind` as LB.
+
+1. GitOps with Flux operator: Flux is bootstrapped using a `FluxInstance` and continuously reconciles this repository from `kubernetes/helmReleases`.
+2. Secrets managed with Sealed Secrets: OpenAI credentials are stored as `SealedSecret` resources for both kagent and agentgateway so encrypted secrets can be safely versioned in Git. Each user should generate their own SealedSecrets for their cluster and credentials.
+3. kagent with model configuration: kagent is deployed via HelmRelease, and `ModelConfig` uses model `gpt-4.1-mini` with `baseUrl` set to the in-cluster `agentgateway-proxy` endpoint.
+4. Agent Gateway configured and reachable: agentgateway is deployed from OCI Helm charts, plus Gateway API resources (`Gateway` and `HTTPRoute`) are configured. The gateway endpoint is testable with the curl flow below, and kagent UI is accessible with:
+
+```bash
+kubectl port-forward -n kagent svc/kagent-ui 8085:8085
+```
+
+5. Backend mapped to model path: an `AgentgatewayBackend` named `openai` is created, bound by `HTTPRoute`, and then consumed by kagent through the `ModelConfig` base URL.
+
 ## Environment Setup (Linux)
 
 Follow these steps to prepare your environment and bootstrap the project.
@@ -46,6 +63,8 @@ sudo install -m 755 kubeseal /usr/local/bin/kubeseal
 
 ### 5. Create a Sealed Secret
 
+Generate this secret yourself (do not reuse another user's encrypted secret payload).
+
 ```bash
 echo -n <API_KEY> | kubectl create secret generic mysecret --dry-run=client --from-file=apiKey=/dev/stdin -o yaml > mysecret.yaml
 kubeseal -f mysecret.yaml -w kubernetes/helmReleases/kagent/kagentSecrets.yaml --controller-name sealed-secrets-controller --controller-namespace flux-system
@@ -67,6 +86,8 @@ If you need more LoadBalancer IPs, run this command again:
 
 ### 7. Create a Sealed Secret for Agent Gateway
 
+Generate this secret yourself as well, using your own API key.
+
 ```bash
 echo -n <API_KEY> | kubectl create secret generic openai-secret -n agentgateway-system --dry-run=client --from-file=Authorization=/dev/stdin -o yaml > generatedAgentgatewaySecrets.yaml
 kubeseal -f generatedAgentgatewaySecrets.yaml -w kubernetes/helmReleases/agentgateway/agentgatewaySecrets.yaml --controller-name sealed-secrets-controller --controller-namespace flux-system
@@ -75,6 +96,18 @@ kubeseal -f generatedAgentgatewaySecrets.yaml -w kubernetes/helmReleases/agentga
 ### 8. Verify the Agent Gateway works
 
 Use this as a quick smoke test after Flux finishes reconciling the resources.
+
+You can also verify access to the UI and admin endpoints:
+
+```bash
+# kagent UI access
+kubectl port-forward -n kagent svc/kagent-ui 8080:8080
+```
+
+```bash
+# agentgateway admin endpoint (forward the agentgateway-proxy workload)
+kubectl port-forward -n agentgateway-system deploy/agentgateway-proxy 15000:15000
+```
 
 ```bash
 # Expose the in-cluster Agent Gateway proxy on localhost:9090.
@@ -116,7 +149,25 @@ If everything is working, you should get a JSON response similar to this:
 }
 ```
 
+You can also test through the kagent UI end-to-end:
+
+1. Open the kagent UI after port-forwarding `svc/kagent-ui`.
+2. Create a new agent and choose model `agentgateway-gpt4-mini`.
+3. Start chatting with that agent.
+4. In another terminal, watch proxy logs while you chat:
+
+```bash
+kubectl logs -n agentgateway-system deploy/agentgateway-proxy -f
+```
+
+During the chat, you should see request logs from the agent traffic in `agentgateway-proxy`.
+
 This confirms two things:
 
 1. The `agentgateway-proxy` service is reachable.
 2. The gateway can authenticate upstream and return a valid model response.
+
+## Under Consideration
+
+1. `kgateway` was added initially, but it currently behaves as an Envoy proxy layer for this setup, so it is disabled for now.
+2. Verify whether credentials can be removed from `ModelConfig` and managed only in `AgentgatewayBackend` (current assumption).
