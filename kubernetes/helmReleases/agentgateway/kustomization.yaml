@@ -5,3 +5,5 @@ resources:
   - namespace.yaml
   - agentGatewayRelease.yaml
   - gateway.yaml
+  - httpRoute.yaml
+  - agentBackend.yaml
