@@ -4,3 +4,4 @@ namespace: kgateway-system
 resources:
   - namespace.yaml
   - kgatewayRelease.yaml
+  - gatewayApi.yaml
