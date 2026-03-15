@@ -1,9 +1,10 @@
-apiVersion: kagent.dev/v1alpha1
+apiVersion: kagent.dev/v1alpha2
 kind: ModelConfig
 metadata:
   name: agentgateway-gpt4-mini
   namespace: kagent
 spec:
+  provider: OpenAI
   apiKeySecret: openai-api-key
   apiKeySecretKey: apiKey
   openAI:
