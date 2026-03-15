@@ -71,3 +71,52 @@ If you need more LoadBalancer IPs, run this command again:
 echo -n <API_KEY> | kubectl create secret generic openai-secret -n agentgateway-system --dry-run=client --from-file=Authorization=/dev/stdin -o yaml > generatedAgentgatewaySecrets.yaml
 kubeseal -f generatedAgentgatewaySecrets.yaml -w kubernetes/helmReleases/agentgateway/agentgatewaySecrets.yaml --controller-name sealed-secrets-controller --controller-namespace flux-system
 ```
+
+### 8. Verify the Agent Gateway works
+
+Use this as a quick smoke test after Flux finishes reconciling the resources.
+
+```bash
+# Expose the in-cluster Agent Gateway proxy on localhost:9090.
+# Keep this terminal running while you test the API.
+kubectl port-forward -n agentgateway-system svc/agentgateway-proxy 9090:80
+```
+
+In another terminal, send a test chat completion request:
+
+```bash
+# Send a request through the local port-forward to confirm the gateway can reach the model backend.
+curl -s http://localhost:9090/v1/chat/completions \
+	-H "Content-Type: application/json" \
+	-d '{
+		"model": "gpt-4.1-mini",
+		"messages": [{"role": "user", "content": "Hello!"}]
+	}'
+```
+
+If everything is working, you should get a JSON response similar to this:
+
+```json
+{
+	"model": "gpt-4.1-mini-2025-04-14",
+	"usage": {
+		"prompt_tokens": 9,
+		"completion_tokens": 9,
+		"total_tokens": 18
+	},
+	"choices": [
+		{
+			"message": {
+				"content": "Hello! How can I assist you today?",
+				"role": "assistant"
+			},
+			"finish_reason": "stop"
+		}
+	]
+}
+```
+
+This confirms two things:
+
+1. The `agentgateway-proxy` service is reachable.
+2. The gateway can authenticate upstream and return a valid model response.

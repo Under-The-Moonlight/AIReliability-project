@@ -5,3 +5,4 @@ resources:
   - namespace.yaml
   - kagentRelease.yaml
   - kagentSecrets.yaml
+  - modelConfig.yaml
