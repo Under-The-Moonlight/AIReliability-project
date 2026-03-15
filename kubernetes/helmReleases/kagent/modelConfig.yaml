@@ -1,0 +1,10 @@
+apiVersion: kagent.dev/v1alpha1
+kind: ModelConfig
+metadata:
+  name: agentgateway-gpt4-mini
+  namespace: kagent
+spec:
+  apiKeySecretRef: openai-api-key
+  apiKeySecretKey: apiKey
+  baseURL: "http://agentgateway-proxy.agentgateway-system.svc.cluster.local:80"
+  model: gpt-4.1-mini

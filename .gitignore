@@ -37,3 +37,4 @@ override.tf.json
 terraform.rc
 
 *mysecret.yaml
+*generatedAgentgatewaySecrets.yaml

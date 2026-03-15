@@ -58,3 +58,16 @@ wget https://github.com/kubernetes-sigs/cloud-provider-kind/releases/download/v0
 sudo tar -xvzf cloud-provider-kind_0.10.0_linux_amd64.tar.gz -C /go/bin
 /go/bin/cloud-provider-kind >/dev/null 2>&1 &
 ```
+
+If you need more LoadBalancer IPs, run this command again:
+
+```bash
+/go/bin/cloud-provider-kind >/dev/null 2>&1 &
+```
+
+### 7. Create a Sealed Secret for Agent Gateway
+
+```bash
+echo -n <API_KEY> | kubectl create secret generic openai-secret -n agentgateway-system --dry-run=client --from-file=Authorization=/dev/stdin -o yaml > generatedAgentgatewaySecrets.yaml
+kubeseal -f generatedAgentgatewaySecrets.yaml -w kubernetes/helmReleases/agentgateway/agentgatewaySecrets.yaml --controller-name sealed-secrets-controller --controller-namespace flux-system
+```
