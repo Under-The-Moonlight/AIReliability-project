@@ -12,7 +12,7 @@ Tested environment: GitHub Codespaces, `kind`, and `cloud-provider-kind` as LB.
 4. Agent Gateway configured and reachable: agentgateway is deployed from OCI Helm charts, plus Gateway API resources (`Gateway` and `HTTPRoute`) are configured. The gateway endpoint is testable with the curl flow below, and kagent UI is accessible with:
 
 ```bash
-kubectl port-forward -n kagent svc/kagent-ui 8085:8085
+kubectl port-forward -n kagent svc/kagent-ui 8080:8080
 ```
 
 5. Backend mapped to model path: an `AgentgatewayBackend` named `openai` is created, bound by `HTTPRoute`, and then consumed by kagent through the `ModelConfig` base URL.
