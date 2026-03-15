@@ -4,7 +4,7 @@ metadata:
   name: agentgateway-gpt4-mini
   namespace: kagent
 spec:
-  apiKeySecretRef: openai-api-key
+  apiKeySecret: openai-api-key
   apiKeySecretKey: apiKey
   openAI:
     baseUrl: "http://agentgateway-proxy.agentgateway-system.svc.cluster.local:80"
