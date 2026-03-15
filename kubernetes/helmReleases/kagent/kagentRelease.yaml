@@ -76,4 +76,5 @@ spec:
       openAI:
         apiKeySecretRef: openai-api-key
         apiKeySecretKey: apiKey
+        baseURL: "http://agentgateway-proxy.agentgateway-system.svc.cluster.local:80"
 
