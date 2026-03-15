@@ -7,3 +7,4 @@ resources:
   - gateway.yaml
   - httpRoute.yaml
   - agentBackend.yaml
+  - agentgatewaySecrets.yaml
