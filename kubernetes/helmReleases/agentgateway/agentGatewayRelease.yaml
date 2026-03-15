@@ -1,0 +1,54 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: agentgateway
+  namespace: agentgateway-system
+spec:
+  type: oci
+  interval: 5m
+  url:  oci://ghcr.io/kgateway-dev/charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: agentgateway-crd
+  namespace: agentgateway-system
+spec:
+  targetNamespace: agentgateway-system
+  interval: 5m
+  releaseName: agentgateway-crds
+  install:
+    createNamespace: true
+  chart:
+    spec:
+      chart: agentgateway-crds
+      version: "v2.2.1"
+      sourceRef:
+        kind: HelmRepository
+        name: agentgateway
+        namespace: agentgateway-system
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: agentgateway
+  namespace: agentgateway-system
+spec:
+  targetNamespace: agentgateway-system
+  interval: 5m
+  dependsOn:
+    - name: agentgateway-crd
+  releaseName: agentgateway
+  install:
+    createNamespace: true
+  chart:
+    spec:
+      chart: agentgateway
+      version: "v2.2.1"
+      sourceRef:
+        kind: HelmRepository
+        name: kgateway
+        namespace: kgateway-system
+
+
