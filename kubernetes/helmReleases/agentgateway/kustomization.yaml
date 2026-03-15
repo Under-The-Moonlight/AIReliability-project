@@ -4,3 +4,4 @@ namespace: agentgateway-system
 resources:
   - namespace.yaml
   - agentGatewayRelease.yaml
+  - gateway.yaml
