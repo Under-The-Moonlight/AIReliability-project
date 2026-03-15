@@ -172,3 +172,6 @@ This confirms two things:
 1. `kgateway` was added initially, but it currently behaves as an Envoy proxy layer for this setup, so it is disabled for now.
 2. Verify whether credentials can be removed from `ModelConfig` and managed only in `AgentgatewayBackend` (current assumption).
 3. Add convinient way to apply secrets without kubeseal if user don't want to use it
+
+## ToDo
+1. Development: PR Instrumentation
