@@ -7,7 +7,7 @@ metadata:
 spec:
   type: oci
   interval: 5m
-  url:  oci://ghcr.io/kgateway-dev/charts
+  url: oci://ghcr.io/kgateway-dev/charts
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -48,7 +48,7 @@ spec:
       version: "v2.2.1"
       sourceRef:
         kind: HelmRepository
-        name: kgateway
-        namespace: kgateway-system
+        name: agentgateway
+        namespace: agentgateway-system
 
 
