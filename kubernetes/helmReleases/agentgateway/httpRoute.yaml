@@ -9,6 +9,10 @@ spec:
     - name: agentgateway-proxy       # your existing Gateway
       namespace: agentgateway-system
   rules:
+    - matches:
+      - path:
+          type: PathPrefix
+          value: /openai
     - backendRefs:
         - name: openai
           namespace: agentgateway-system
