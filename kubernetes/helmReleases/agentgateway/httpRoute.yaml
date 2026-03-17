@@ -13,7 +13,7 @@ spec:
       - path:
           type: PathPrefix
           value: /openai
-    - backendRefs:
+      backendRefs:
         - name: openai
           namespace: agentgateway-system
           group: agentgateway.dev
