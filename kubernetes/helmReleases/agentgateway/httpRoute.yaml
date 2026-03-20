@@ -9,11 +9,7 @@ spec:
     - name: agentgateway-proxy
       namespace: agentgateway-system
   rules:
-    - matches:
-      - path:
-          type: PathPrefix
-          value: /openai
-      backendRefs:
+    - backendRefs:
         - name: openai
           namespace: agentgateway-system
           group: agentgateway.dev
