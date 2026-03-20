@@ -6,7 +6,7 @@ metadata:
   namespace: agentgateway-system
 spec:
   parentRefs:
-    - name: agentgateway-proxy       # your existing Gateway
+    - name: agentgateway-proxy
       namespace: agentgateway-system
   rules:
     - matches:
