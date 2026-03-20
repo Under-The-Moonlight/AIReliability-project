@@ -7,7 +7,6 @@ spec:
   type: Declarative
   declarative:
     modelConfig: agentgateway-gpt4-mini
-    runtime: go
     tools:
       - type: McpServer
         mcpServer:
@@ -39,11 +38,9 @@ spec:
           name: kagent-builtin-prompts
           alias: builtin
     systemMessage: |
-      You are a Kubernetes management agent named sre expert.
+      You are a Kubernetes agent named sre expert.
 
       {{include "builtin/safety-guardrails"}}
       {{include "builtin/tool-usage-best-practices"}}
-      {{include "my-custom-prompts/k8s-specific-rules"}}
 
       Your tools: {{.ToolNames}}
-      Your skills: {{.SkillNames}}
