@@ -43,4 +43,4 @@ spec:
     kind: GitRepository
     url: "https://github.com/Under-The-Moonlight/AIReliability-project.git" # Change repository url to your own
     ref: "refs/heads/main"
-    path: "kubernetes/helmReleases/cluster"
+    path: "kubernetes/cluster"
