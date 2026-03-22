@@ -38,7 +38,7 @@ spec:
             path: /spec/template/spec/tolerations
             value:
               - key: "CriticalAddonsOnly"
-                operator: "Exists"          
+                operator: "Exists"
   sync:
     kind: GitRepository
     url: "https://github.com/Under-The-Moonlight/AIReliability-project.git" # Change repository url to your own
