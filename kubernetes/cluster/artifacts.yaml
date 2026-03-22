@@ -30,3 +30,8 @@ spec:
       copy:
         - from: "@monorepo/kubernetes/helmReleases/agentgateway/**"
           to: "@artifact/agentgateway/"
+    - name: agents
+      originRevision: "@monorepo"
+      copy:
+        - from: "@monorepo/kubernetes/helmReleases/agents/**"
+          to: "@artifact/agents/"
