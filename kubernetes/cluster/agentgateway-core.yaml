@@ -10,6 +10,6 @@ spec:
   sourceRef:
     kind: ExternalArtifact
     name: agentgateway
-  path: ./agentgateway/resources
+  path: ./agentgateway/core
   prune: true
   wait: true
