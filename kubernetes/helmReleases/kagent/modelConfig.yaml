@@ -5,9 +5,16 @@ metadata:
   namespace: kagent
 spec:
   provider: OpenAI
-  apiKeySecret: openai-api-key
-  apiKeySecretKey: apiKey
+  apiKeySecret: dummy-secret
   openAI:
     baseUrl: "http://agentgateway-proxy.agentgateway-system.svc.cluster.local:80"
     maxTokens: 10000
   model: gpt-4.1-mini
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dummy-secret
+  namespace: kagent
+data:
+  OPENAI_API_KEY: YmFyCg==
