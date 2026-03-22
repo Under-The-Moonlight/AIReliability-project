@@ -32,6 +32,12 @@ spec:
           - k8s_apply_manifest
           - k8s_get_resources
           - k8s_get_pod_logs
+      - type: McpServer
+        mcpServer:
+          name: mcp-website-fetcher
+          kind: MCPServer
+          toolNames:
+          - fetch
     promptTemplate:
       dataSources:
         - kind: ConfigMap
@@ -39,6 +45,7 @@ spec:
           alias: builtin
     systemMessage: |
       You are a Kubernetes agent named sre expert.
+      Also you are capable of fetching info from sites.
 
       {{include "builtin/safety-guardrails"}}
       {{include "builtin/tool-usage-best-practices"}}

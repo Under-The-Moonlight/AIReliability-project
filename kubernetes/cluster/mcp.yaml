@@ -1,0 +1,15 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: mcp
+  namespace: flux-system
+spec:
+  interval: 5m
+  retryInterval: 2m
+  timeout: 5m
+  sourceRef:
+    kind: ExternalArtifact
+    name: mcp
+  path: ./mcp
+  prune: true
+  wait: true

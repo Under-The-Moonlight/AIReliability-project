@@ -1,0 +1,14 @@
+---
+apiVersion: kagent.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: mcp-website-fetcher
+  namespace: kagent
+spec:
+  deployment:
+    args:
+    - mcp-server-fetch
+    cmd: uvx
+    port: 3000
+  stdioTransport: {}
+  transportType: stdio
