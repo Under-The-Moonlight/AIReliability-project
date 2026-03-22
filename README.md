@@ -100,6 +100,11 @@ Use this as a quick smoke test after Flux finishes reconciling the resources.
 You can also verify access to the UI and admin endpoints:
 
 ```bash
+# Flux UI access
+kubectl -n flux-system port-forward svc/flux-web 9080:9080
+```
+
+```bash
 # kagent UI access
 kubectl port-forward -n kagent svc/kagent-ui 8080:8080
 ```
@@ -169,9 +174,7 @@ This confirms two things:
 
 ## Under Consideration
 
-1. `kgateway` was added initially, but it currently behaves as an Envoy proxy layer for this setup, so it is disabled for now.
-2. Verify whether credentials can be removed from `ModelConfig` and managed only in `AgentgatewayBackend` (current assumption).
-3. Add convinient way to apply secrets without kubeseal if user don't want to use it
+1. Add convinient way to apply secrets without kubeseal if user don't want to use it
 
 ## ToDo
 1. Development: PR Instrumentation
