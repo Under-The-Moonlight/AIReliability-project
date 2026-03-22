@@ -6,6 +6,7 @@ metadata:
 spec:
   provider: OpenAI
   apiKeySecret: dummy-secret
+  apiKeySecretKey: OPENAI_API_KEY
   openAI:
     baseUrl: "http://agentgateway-proxy.agentgateway-system.svc.cluster.local:80"
     maxTokens: 10000
