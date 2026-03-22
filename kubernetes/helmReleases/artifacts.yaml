@@ -25,11 +25,6 @@ spec:
       copy:
         - from: "@monorepo/kubernetes/helmReleases/cluster/**"
           to: "@artifact/cluster/"
-    - name: kgateway
-      originRevision: "@monorepo"
-      copy:
-        - from: "@monorepo/kubernetes/helmReleases/kgateway/**"
-          to: "@artifact/kgateway/"
     - name: agentgateway
       originRevision: "@monorepo"
       copy:
