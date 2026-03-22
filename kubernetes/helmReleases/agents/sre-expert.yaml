@@ -7,10 +7,6 @@ spec:
   type: Declarative
   declarative:
     modelConfig: agentgateway-gpt4-mini
-    deployment:
-      env:
-        - name: OPENAI_BASE_URL
-          value: "http://agentgateway-proxy.agentgateway-system.svc.cluster.local:80/v1"
     tools:
       - type: McpServer
         mcpServer:
