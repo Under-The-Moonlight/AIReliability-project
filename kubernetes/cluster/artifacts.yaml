@@ -40,3 +40,8 @@ spec:
       copy:
         - from: "@monorepo/kubernetes/helmReleases/mcp/**"
           to: "@artifact/mcp/"
+    - name: phoenix
+      originRevision: "@monorepo"
+      copy:
+        - from: "@monorepo/kubernetes/helmReleases/phoenix/**"
+          to: "@artifact/phoenix/"
