@@ -28,3 +28,6 @@ spec:
         kind: HelmRepository
         name: phoenix
         namespace: phoenix
+  values:
+    auth:
+      enableAuth: false
