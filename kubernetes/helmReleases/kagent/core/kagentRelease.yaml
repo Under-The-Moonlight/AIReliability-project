@@ -82,7 +82,7 @@ spec:
         enabled: true
         exporter:
           otlp:
-            endpoint: http://phoenix-svc.phoenix.svc.cluster.local/v1/traces:6006
+            endpoint: http://phoenix-svc.phoenix.svc.cluster.local:4317
             timeout: 15
             insecure: true
 
