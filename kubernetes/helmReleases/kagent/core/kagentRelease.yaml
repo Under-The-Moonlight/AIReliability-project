@@ -23,7 +23,7 @@ spec:
   chart:
     spec:
       chart: kagent-crds
-      version: "0.7"
+      version: "0.8.4"
       sourceRef:
         kind: HelmRepository
         name: kagent
@@ -45,7 +45,7 @@ spec:
   chart:
     spec:
       chart: kagent
-      version: "0.7"
+      version: "0.8.4"
       sourceRef:
         kind: HelmRepository
         name: kagent
@@ -77,4 +77,12 @@ spec:
         apiKeySecretRef: openai-api-key
         apiKeySecretKey: apiKey
         baseURL: "http://agentgateway-proxy.agentgateway-system.svc.cluster.local:80"
+    otel:
+      tracing:
+        enabled: true
+        exporter:
+          otlp:
+            endpoint: http://phoenix-svc.phoenix.svc.cluster.local/v1/traces:6006
+            timeout: 15
+            insecure: true
 
