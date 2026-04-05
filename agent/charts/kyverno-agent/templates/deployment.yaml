@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kyverno-agent.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "kyverno-agent.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "kyverno-agent.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "kyverno-agent.fullname" . }}
+    spec:
+      serviceAccountName: {{ include "kyverno-agent.serviceAccountName" . }}
+      containers:
+        - name: kyverno-agent
+          image: {{ include "kyverno-agent.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          env:
+            - name: PORT
+              value: {{ .Values.service.port | quote }}
+            - name: AGENT_BASE_URL
+              value: {{ .Values.agent.baseUrl | quote }}
+            - name: OPENAI_BASE_URL
+              value: {{ .Values.agent.llmBaseUrl | quote }}
+            - name: OPENAI_MODEL
+              value: {{ .Values.agent.model | quote }}
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: {{ .Values.otel.endpoint | quote }}
+            {{- if .Values.agent.openaiApiKeySecret.name }}
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.agent.openaiApiKeySecret.name }}
+                  key: {{ .Values.agent.openaiApiKeySecret.key }}
+            {{- else }}
+            - name: OPENAI_API_KEY
+              value: "dummy"
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /.well-known/agent-card.json
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /.well-known/agent-card.json
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

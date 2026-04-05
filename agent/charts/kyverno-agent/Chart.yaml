@@ -1,0 +1,11 @@
+apiVersion: v2
+name: kyverno-agent
+description: Kyverno policy generator agent with A2A protocol support
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - kyverno
+  - agent
+  - a2a
+  - policy

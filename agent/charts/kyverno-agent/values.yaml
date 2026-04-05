@@ -1,0 +1,33 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/under-the-moonlight/aireliability-project/kyverno-agent
+  pullPolicy: IfNotPresent
+  tag: ""  # defaults to .Chart.AppVersion
+
+serviceAccount:
+  create: true
+  name: ""
+
+service:
+  type: ClusterIP
+  port: 8080
+
+agent:
+  baseUrl: ""  # e.g. http://kyverno-agent.kyverno.svc.cluster.local:8080
+  llmBaseUrl: "http://agentgateway-proxy.agentgateway-system.svc.cluster.local:80/v1"
+  model: "gpt-4.1-mini"
+  openaiApiKeySecret:
+    name: ""   # Secret name; leave empty to use dummy key (agentgateway handles auth)
+    key: "apiKey"
+
+otel:
+  endpoint: "http://phoenix-svc.phoenix.svc.cluster.local:4317"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi

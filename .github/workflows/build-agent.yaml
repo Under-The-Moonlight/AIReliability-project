@@ -1,47 +1,97 @@
-# name: agent-build
+name: build-agent
 
-# on:
-#   push:
-#     branches:
-#       - main
-#     tags:
-#       - "v*"
-#     path:
-#       - "agent/**"
-#       - "Dockerfile"
-#   pull_request:
-#     paths:
-#       - "Dockerfile"
-#       - "agent/**"
-#   workflow_dispatch: {}
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+    paths:
+      - "agent/**"
+      - "Dockerfile"
+  pull_request:
+    paths:
+      - "agent/**"
+      - "Dockerfile"
+  workflow_dispatch: {}
 
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.ref }}
-#   cancel-in-progress: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
-# env:
-#   REGISTRY: ghcr.io
-# jobs:
-#   build-push:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Check out the repository
-#         uses: actions/checkout@v5
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/kyverno-agent
+  CHART_REPO: ghcr.io/${{ github.repository_owner }}/charts
 
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@v2
+jobs:
+  build-agent:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
-#       - name: Log in to GitHub Container Registry
-#         uses: docker/login-action@v2
-#         with:
-#           registry: ${{ env.REGISTRY }}
-#           username: ${{ github.actor }}
-#           password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
 
-#       - name: Build and push Docker image
-#         uses: docker/build-push-action@v3
-#         with:
-#           context: .
-#           file: ./Dockerfile
-#           push: true
-#           tags: ${{ env.REGISTRY }}/${{ github.repository }}:${{ github.ref_name }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=sha-
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  package-chart:
+    runs-on: ubuntu-latest
+    needs: build-agent
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${{ env.REGISTRY }} --username ${{ github.actor }} --password-stdin
+
+      - name: Package Helm chart
+        run: |
+          helm package agent/charts/kyverno-agent \
+            --version ${{ github.ref_type == 'tag' && github.ref_name || '0.1.0-dev' }} \
+            --app-version ${{ github.ref_type == 'tag' && github.ref_name || github.sha }}
+
+      - name: Push Helm chart to GHCR
+        run: |
+          helm push kyverno-agent-*.tgz oci://${{ env.CHART_REPO }}

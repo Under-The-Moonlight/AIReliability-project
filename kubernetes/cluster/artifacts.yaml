@@ -50,3 +50,8 @@ spec:
       copy:
         - from: "@monorepo/kubernetes/helmReleases/agentregistry/**"
           to: "@artifact/agentregistry/"
+    - name: kyverno
+      originRevision: "@monorepo"
+      copy:
+        - from: "@monorepo/kubernetes/helmReleases/kyverno/**"
+          to: "@artifact/kyverno/"

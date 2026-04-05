@@ -1,0 +1,28 @@
+apiVersion: kagent.dev/v1alpha2
+kind: Agent
+metadata:
+  name: kyverno-policy-generator
+  namespace: kagent
+spec:
+  type: BYO
+  byo:
+    deployment:
+      image: ghcr.io/under-the-moonlight/aireliability-project/kyverno-agent:latest
+      env:
+        - name: OPENAI_BASE_URL
+          value: "http://agentgateway-proxy.agentgateway-system.svc.cluster.local:80/v1"
+        - name: OPENAI_MODEL
+          value: "gpt-4.1-mini"
+        - name: OPENAI_API_KEY
+          value: "dummy"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://phoenix-svc.phoenix.svc.cluster.local:4317"
+        - name: AGENT_BASE_URL
+          value: "http://kyverno-policy-generator.kagent.svc.cluster.local:8080"
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 256Mi
