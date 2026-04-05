@@ -1,12 +1,22 @@
 import os
+import uuid
 
 import uvicorn
-from a2a.server.agent_execution import AgentExecutor
+from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.apps import A2AStarletteApplication
-from a2a.server.events import EventQueue, TaskStatusUpdateEvent
-from a2a.server.request_handlers import DefaultRequestHandler, RequestContext
+from a2a.server.events import EventQueue
+from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import InMemoryTaskStore
-from a2a.types import Message, Part, Role, TaskState, TaskStatus, TextPart
+from a2a.types import (
+    Message,
+    Part,
+    Role,
+    TaskArtifactUpdateEvent,
+    TaskState,
+    TaskStatus,
+    TaskStatusUpdateEvent,
+    TextPart,
+)
 
 from src.agent import build_graph
 from src.agent_card import build_agent_card
@@ -29,17 +39,21 @@ class KyvernoPolicyExecutor(AgentExecutor):
     async def execute(self, context: RequestContext, event_queue: EventQueue) -> None:
         user_text = _extract_text(context.message)
 
-        event_queue.enqueue(
+        event_queue.enqueue_event(
             TaskStatusUpdateEvent(
+                taskId=context.task_id,
+                contextId=context.context_id,
+                final=False,
                 status=TaskStatus(
                     state=TaskState.working,
                     message=Message(
                         role=Role.agent,
+                        messageId=str(uuid.uuid4()),
                         parts=[
                             Part(root=TextPart(text="Checking existing Kyverno policies..."))
                         ],
                     ),
-                )
+                ),
             )
         )
 
@@ -51,21 +65,25 @@ class KyvernoPolicyExecutor(AgentExecutor):
             }
         )
 
-        event_queue.enqueue(
+        event_queue.enqueue_event(
             TaskStatusUpdateEvent(
+                taskId=context.task_id,
+                contextId=context.context_id,
+                final=True,
                 status=TaskStatus(
                     state=TaskState.completed,
                     message=Message(
                         role=Role.agent,
+                        messageId=str(uuid.uuid4()),
                         parts=[Part(root=TextPart(text=state["result"]))],
                     ),
-                )
+                ),
             )
         )
-        event_queue.close()
+        await event_queue.close()
 
     async def cancel(self, context: RequestContext, event_queue: EventQueue) -> None:
-        event_queue.close()
+        await event_queue.close()
 
 
 def main() -> None:

@@ -14,8 +14,8 @@ def build_agent_card() -> AgentCard:
         ),
         url=f"{base_url}/",
         version="0.1.0",
-        default_input_modes=["text/plain"],
-        default_output_modes=["text/plain"],
+        defaultInputModes=["text/plain"],
+        defaultOutputModes=["text/plain"],
         capabilities=AgentCapabilities(streaming=True),
         skills=[
             AgentSkill(

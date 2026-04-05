@@ -37,7 +37,7 @@ def fetch_policies(state: PolicyState) -> dict:
 
 def generate_or_find_policy(state: PolicyState) -> dict:
     llm = ChatOpenAI(
-        base_url=os.environ["OPENAI_BASE_URL"],
+        base_url=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
         api_key=os.environ.get("OPENAI_API_KEY", "dummy"),
         model=os.environ.get("OPENAI_MODEL", "gpt-4.1-mini"),
     )

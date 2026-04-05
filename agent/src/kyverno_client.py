@@ -2,15 +2,26 @@ from kubernetes import client, config
 from kubernetes.client.exceptions import ApiException
 
 
+class _NoConfigError(Exception):
+    pass
+
+
 def _load_config() -> None:
     try:
         config.load_incluster_config()
     except config.ConfigException:
-        config.load_kube_config()
+        try:
+            config.load_kube_config()
+        except config.ConfigException:
+            # No cluster available (e.g. local dev without kubeconfig)
+            raise _NoConfigError("No Kubernetes configuration found")
 
 
 def list_cluster_policies() -> list[dict]:
-    _load_config()
+    try:
+        _load_config()
+    except _NoConfigError:
+        return []
     api = client.CustomObjectsApi()
     try:
         result = api.list_cluster_custom_object(
@@ -30,7 +41,10 @@ def list_cluster_policies() -> list[dict]:
 
 
 def list_namespaced_policies(namespace: str = "default") -> list[dict]:
-    _load_config()
+    try:
+        _load_config()
+    except _NoConfigError:
+        return []
     api = client.CustomObjectsApi()
     try:
         result = api.list_namespaced_custom_object(
