@@ -1,0 +1,120 @@
+name: build-agent
+
+on:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "v*"
+    paths:
+      - "agent/**"
+      - "Dockerfile"
+  pull_request:
+    paths:
+      - "agent/**"
+      - "Dockerfile"
+  workflow_dispatch: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/kyverno-agent
+  CHART_REPO: ghcr.io/${{ github.repository_owner }}/charts
+
+jobs:
+  build-agent:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            # stable tags on version tag (v0.2.0 → 0.2.0, 0.2, latest)
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            # dev tags on branch push (branch name + sha)
+            type=ref,event=branch
+            type=sha,prefix=sha-
+            # pr tag (build only, not pushed)
+            type=ref,event=pr
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  package-chart:
+    runs-on: ubuntu-latest
+    needs: build-agent
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${{ env.REGISTRY }} --username ${{ github.actor }} --password-stdin
+
+      - name: Resolve chart version
+        id: chart_version
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            # stable release: strip leading 'v' for semver (v0.2.0 → 0.2.0)
+            VERSION="${{ github.ref_name }}"
+            VERSION="${VERSION#v}"
+            APP_VERSION="${{ github.ref_name }}"
+          else
+            # dev build: 0.0.0-dev.<short-sha> (valid semver pre-release)
+            SHORT_SHA="${{ github.sha }}"
+            SHORT_SHA="${SHORT_SHA::7}"
+            VERSION="0.0.0-dev.${SHORT_SHA}"
+            APP_VERSION="${{ github.sha }}"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "app_version=${APP_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Package Helm chart
+        run: |
+          helm package agent/charts/kyverno-agent \
+            --version ${{ steps.chart_version.outputs.version }} \
+            --app-version ${{ steps.chart_version.outputs.app_version }}
+
+      - name: Push Helm chart to GHCR
+        run: |
+          helm push kyverno-agent-*.tgz oci://${{ env.CHART_REPO }}
