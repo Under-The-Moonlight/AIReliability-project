@@ -39,3 +39,5 @@ terraform.rc
 *mysecret.yaml
 *generatedAgentgatewaySecrets.yaml
 .vscode/
+agent/.venv/
+.claude/
