@@ -13,7 +13,6 @@ def _load_config() -> None:
         try:
             config.load_kube_config()
         except config.ConfigException:
-            # No cluster available (e.g. local dev without kubeconfig)
             raise _NoConfigError("No Kubernetes configuration found")
 
 
@@ -35,29 +34,32 @@ def list_cluster_policies() -> list[dict]:
         ]
     except ApiException as e:
         if e.status == 404:
-            # Kyverno CRDs not installed yet
             return []
         raise
 
 
-def list_namespaced_policies(namespace: str = "default") -> list[dict]:
-    try:
-        _load_config()
-    except _NoConfigError:
-        return []
+def apply_cluster_policy(policy_body: dict) -> str:
+    """Create or update a ClusterPolicy. Returns the policy name."""
+    _load_config()
     api = client.CustomObjectsApi()
+    name = policy_body["metadata"]["name"]
     try:
-        result = api.list_namespaced_custom_object(
+        api.create_cluster_custom_object(
             group="kyverno.io",
             version="v1",
-            namespace=namespace,
-            plural="policies",
+            plural="clusterpolicies",
+            body=policy_body,
         )
-        return [
-            {"name": item["metadata"]["name"], "namespace": namespace, "kind": "Policy"}
-            for item in result.get("items", [])
-        ]
     except ApiException as e:
-        if e.status == 404:
-            return []
-        raise
+        if e.status == 409:
+            # Already exists — patch it
+            api.patch_cluster_custom_object(
+                group="kyverno.io",
+                version="v1",
+                plural="clusterpolicies",
+                name=name,
+                body=policy_body,
+            )
+        else:
+            raise
+    return name
