@@ -34,8 +34,6 @@ spec:
   targetNamespace: agentregistry
   interval: 5m
   releaseName: agentregistry-inventory
-  dependsOn:
-    - name: agentregistry-crds
   install:
     createNamespace: true
   chart:

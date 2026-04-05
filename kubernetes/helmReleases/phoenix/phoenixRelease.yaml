@@ -31,3 +31,5 @@ spec:
   values:
     auth:
       enableAuth: false
+    logging:
+      level: "debug"

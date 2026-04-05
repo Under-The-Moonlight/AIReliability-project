@@ -1,0 +1,117 @@
+import os
+import uuid
+
+import uvicorn
+from a2a.server.agent_execution import AgentExecutor, RequestContext
+from a2a.server.apps import A2AStarletteApplication
+from starlette.requests import Request
+from starlette.responses import RedirectResponse
+from starlette.routing import Route
+from a2a.server.events import EventQueue
+from a2a.server.request_handlers import DefaultRequestHandler
+from a2a.server.tasks import InMemoryTaskStore
+from a2a.types import (
+    Message,
+    Part,
+    Role,
+    TaskArtifactUpdateEvent,
+    TaskState,
+    TaskStatus,
+    TaskStatusUpdateEvent,
+    TextPart,
+)
+
+from src.agent import build_graph
+from src.agent_card import build_agent_card
+from src.tracing import setup_tracing
+
+
+def _extract_text(message: Message) -> str:
+    parts = []
+    for part in message.parts:
+        root = getattr(part, "root", part)
+        if hasattr(root, "text"):
+            parts.append(root.text)
+    return " ".join(parts).strip()
+
+
+class KyvernoPolicyExecutor(AgentExecutor):
+    def __init__(self) -> None:
+        self._graph = build_graph()
+
+    async def execute(self, context: RequestContext, event_queue: EventQueue) -> None:
+        user_text = _extract_text(context.message)
+
+        event_queue.enqueue_event(
+            TaskStatusUpdateEvent(
+                taskId=context.task_id,
+                contextId=context.context_id,
+                final=False,
+                status=TaskStatus(
+                    state=TaskState.working,
+                    message=Message(
+                        role=Role.agent,
+                        messageId=str(uuid.uuid4()),
+                        parts=[
+                            Part(root=TextPart(text="Checking existing Kyverno policies..."))
+                        ],
+                    ),
+                ),
+            )
+        )
+
+        state = await self._graph.ainvoke(
+            {
+                "user_request": user_text,
+                "existing_policies": [],
+                "result": "",
+            }
+        )
+
+        event_queue.enqueue_event(
+            TaskStatusUpdateEvent(
+                taskId=context.task_id,
+                contextId=context.context_id,
+                final=True,
+                status=TaskStatus(
+                    state=TaskState.completed,
+                    message=Message(
+                        role=Role.agent,
+                        messageId=str(uuid.uuid4()),
+                        parts=[Part(root=TextPart(text=state["result"]))],
+                    ),
+                ),
+            )
+        )
+        await event_queue.close()
+
+    async def cancel(self, context: RequestContext, event_queue: EventQueue) -> None:
+        await event_queue.close()
+
+
+def main() -> None:
+    setup_tracing("kyverno-agent")
+
+    handler = DefaultRequestHandler(
+        agent_executor=KyvernoPolicyExecutor(),
+        task_store=InMemoryTaskStore(),
+    )
+
+    async def agent_card_alias(request: Request):
+        return RedirectResponse(url="/.well-known/agent.json")
+
+    app = A2AStarletteApplication(
+        agent_card=build_agent_card(),
+        http_handler=handler,
+    ).build(routes=[Route("/.well-known/agent-card.json", endpoint=agent_card_alias)])
+
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", "8080")),
+        log_level="info",
+    )
+
+
+if __name__ == "__main__":
+    main()

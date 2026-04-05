@@ -36,6 +36,9 @@ override.tf.json
 .terraformrc
 terraform.rc
 
+__pycache__/
+*.pyc
+
 *mysecret.yaml
 *generatedAgentgatewaySecrets.yaml
 .vscode/
