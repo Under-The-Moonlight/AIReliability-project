@@ -8,19 +8,15 @@ def setup_tracing(service_name: str = "kyverno-agent") -> None:
     if not endpoint:
         return
 
-    # auto_instrument=True would also trace every HTTP request including
-    # readiness/liveness probes. Disable it and instrument only the
-    # libraries we care about (LangChain/LangGraph and OpenAI).
-    tracer_provider = register(
+    # Exclude readiness/liveness probe paths from tracing before auto-instrumentation runs
+    excluded = "/.well-known/agent.json,/.well-known/agent-card.json"
+    current = os.environ.get("OTEL_PYTHON_EXCLUDED_URLS", "")
+    os.environ["OTEL_PYTHON_EXCLUDED_URLS"] = f"{current},{excluded}" if current else excluded
+
+    register(
         project_name=service_name,
         endpoint=endpoint,
         protocol="grpc",
-        auto_instrument=False,
+        auto_instrument=True,
         batch=True,
     )
-
-    from openinference.instrumentation.langchain import LangChainInstrumentor
-    from openinference.instrumentation.openai import OpenAIInstrumentor
-
-    LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
-    OpenAIInstrumentor().instrument(tracer_provider=tracer_provider)
