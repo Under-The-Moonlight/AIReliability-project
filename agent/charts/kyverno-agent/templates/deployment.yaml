@@ -32,8 +32,8 @@ spec:
               value: {{ .Values.agent.llmBaseUrl | quote }}
             - name: OPENAI_MODEL
               value: {{ .Values.agent.model | quote }}
-            - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: {{ .Values.otel.endpoint | quote }}
+            - name: PHOENIX_COLLECTOR_ENDPOINT
+              value: {{ .Values.phoenix.collectorEndpoint | quote }}
             {{- if .Values.agent.openaiApiKeySecret.name }}
             - name: OPENAI_API_KEY
               valueFrom:

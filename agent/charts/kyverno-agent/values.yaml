@@ -21,8 +21,8 @@ agent:
     name: ""   # Secret name; leave empty to use dummy key (agentgateway handles auth)
     key: "apiKey"
 
-otel:
-  endpoint: "http://phoenix-svc.phoenix.svc.cluster.local:4317"
+phoenix:
+  collectorEndpoint: "http://phoenix-svc.phoenix.svc.cluster.local:4317"
 
 resources:
   requests:
