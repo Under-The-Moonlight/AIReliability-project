@@ -45,3 +45,8 @@ spec:
       copy:
         - from: "@monorepo/kubernetes/helmReleases/phoenix/**"
           to: "@artifact/phoenix/"
+    - name: agentregistry
+      originRevision: "@monorepo"
+      copy:
+        - from: "@monorepo/kubernetes/helmReleases/agentregistry/**"
+          to: "@artifact/agentregistry/"
