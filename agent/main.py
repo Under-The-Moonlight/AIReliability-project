@@ -4,6 +4,9 @@ import uuid
 import uvicorn
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.apps import A2AStarletteApplication
+from starlette.requests import Request
+from starlette.responses import RedirectResponse
+from starlette.routing import Route
 from a2a.server.events import EventQueue
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import InMemoryTaskStore
@@ -94,10 +97,13 @@ def main() -> None:
         task_store=InMemoryTaskStore(),
     )
 
+    async def agent_card_alias(request: Request):
+        return RedirectResponse(url="/.well-known/agent.json")
+
     app = A2AStarletteApplication(
         agent_card=build_agent_card(),
         http_handler=handler,
-    ).build()
+    ).build(routes=[Route("/.well-known/agent-card.json", endpoint=agent_card_alias)])
 
     uvicorn.run(
         app,
