@@ -4,3 +4,4 @@ namespace: kagent
 resources:
   - sre-expert.yaml
   - kyverno-policy-generator.yaml
+  - kyverno-rbac.yaml
