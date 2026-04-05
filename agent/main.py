@@ -3,10 +3,10 @@ import os
 import uvicorn
 from a2a.server.agent_execution import AgentExecutor
 from a2a.server.apps import A2AStarletteApplication
-from a2a.server.events import EventQueue, TaskArtifactUpdateEvent, TaskStatusUpdateEvent
+from a2a.server.events import EventQueue, TaskStatusUpdateEvent
 from a2a.server.request_handlers import DefaultRequestHandler, RequestContext
 from a2a.server.tasks import InMemoryTaskStore
-from a2a.types import Artifact, Message, Part, Role, TaskState, TaskStatus, TextPart
+from a2a.types import Message, Part, Role, TaskState, TaskStatus, TextPart
 
 from src.agent import build_graph
 from src.agent_card import build_agent_card
@@ -36,11 +36,7 @@ class KyvernoPolicyExecutor(AgentExecutor):
                     message=Message(
                         role=Role.agent,
                         parts=[
-                            Part(
-                                root=TextPart(
-                                    text="Checking existing Kyverno policies..."
-                                )
-                            )
+                            Part(root=TextPart(text="Checking existing Kyverno policies..."))
                         ],
                     ),
                 )
@@ -56,15 +52,14 @@ class KyvernoPolicyExecutor(AgentExecutor):
         )
 
         event_queue.enqueue(
-            TaskArtifactUpdateEvent(
-                artifact=Artifact(
-                    parts=[Part(root=TextPart(text=state["result"]))]
-                )
-            )
-        )
-        event_queue.enqueue(
             TaskStatusUpdateEvent(
-                status=TaskStatus(state=TaskState.completed)
+                status=TaskStatus(
+                    state=TaskState.completed,
+                    message=Message(
+                        role=Role.agent,
+                        parts=[Part(root=TextPart(text=state["result"]))],
+                    ),
+                )
             )
         )
         event_queue.close()
