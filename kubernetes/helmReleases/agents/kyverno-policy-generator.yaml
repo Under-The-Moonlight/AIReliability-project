@@ -7,7 +7,7 @@ spec:
   type: BYO
   byo:
     deployment:
-      image: ghcr.io/under-the-moonlight/aireliability-project/kyverno-agent:v0.0.1
+      image: ghcr.io/under-the-moonlight/aireliability-project/kyverno-agent:0.0.1
       env:
         - name: OPENAI_BASE_URL
           value: "http://agentgateway-proxy.agentgateway-system.svc.cluster.local:80/v1"
